@@ -2,19 +2,17 @@ import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { protobufPackage } from '@app/common';
-import { AuthGuard } from './auth.guard';
+import { AUTH_SERVICE_NAME, protobufPackage } from '@app/common';
 
 @Module({
   imports: [
     ClientsModule.register([
       {
-        name: protobufPackage,
+        name: AUTH_SERVICE_NAME,
         transport: Transport.GRPC,
         options: {
           package: protobufPackage,
           protoPath: 'proto/auth.proto',
-          url: 'localhost:5000',
         },
       },
     ]),

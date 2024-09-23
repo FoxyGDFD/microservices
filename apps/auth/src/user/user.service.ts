@@ -1,6 +1,8 @@
 import { CreateUserRequest, UpdateUserRequest } from '@app/common';
 import { PrismaService } from '@app/common/prisma/prisma.service';
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { status } from '@grpc/grpc-js';
+import { Injectable } from '@nestjs/common';
+import { RpcException } from '@nestjs/microservices';
 import { Prisma, User } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 
@@ -18,7 +20,9 @@ export class UserService {
   }
 
   async getUser(where: Prisma.UserWhereUniqueInput): Promise<User> {
-    const user = await this.prisma.user.findUnique({ where });
+    const user = await this.prisma.user.findUnique({
+      where,
+    });
     return user;
   }
 
@@ -35,18 +39,31 @@ export class UserService {
       data,
     });
     if (!user) {
-      throw new NotFoundException(`User with ID ${updateUserDto.id} not found`);
+      throw new RpcException({
+        code: status.NOT_FOUND,
+        message: `User with ID ${updateUserDto.id} not found`,
+      });
     }
     return user;
   }
 
-  async deleteUser(id: string): Promise<boolean> {
-    await this.prisma.user.delete({ where: { id } });
-    return true;
+  async deleteUser(id: string): Promise<User> {
+    return await this.prisma.user.delete({
+      where: { id },
+    });
   }
 
-  async listUsers(where: Prisma.UserWhereInput): Promise<User[]> {
-    return this.prisma.user.findMany({ where });
+  async listUsers(
+    where: Prisma.UserWhereInput,
+    offset?: number,
+    limit?: number,
+  ): Promise<User[]> {
+    return this.prisma.user.findMany({
+      where,
+
+      skip: offset,
+      take: limit,
+    });
   }
 
   private encodePassword(password: string): string {

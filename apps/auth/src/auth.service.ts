@@ -1,9 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  Logger,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import {
@@ -12,21 +7,29 @@ import {
   ValidateAccessTokenResponse,
 } from '@app/common';
 import { UserService } from './user/user.service';
+import { RpcException } from '@nestjs/microservices';
+import { status } from '@grpc/grpc-js';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
 
   async register(createUserDto: CreateUserRequest) {
-    const user = await this.userService.getUser({ email: createUserDto.email });
+    const user = await this.userService.getUser({
+      email: createUserDto.email,
+    });
     if (!!user) {
-      throw new BadRequestException('Email already in use');
+      throw new RpcException({
+        code: status.ALREADY_EXISTS,
+        message: 'Email already registered',
+      });
     }
     const newUser = await this.userService.createUser(createUserDto);
-    Logger.log('newUser', newUser);
     return await this.generateTokens(newUser.id);
   }
 
@@ -36,14 +39,14 @@ export class AuthService {
   }
 
   private async generateTokens(id: string) {
-    const accessToken = await this.jwtService.signAsync(
-      { sub: id },
-      { expiresIn: '15m' }, // Access token valid for 15 minutes
-    );
+    const accessToken = this.jwtService.sign({ sub: id });
 
-    const refreshToken = await this.jwtService.signAsync(
+    const refreshToken = this.jwtService.sign(
       { sub: id, type: 'refresh' },
-      { expiresIn: '7d' }, // Refresh token valid for 7 days
+      {
+        expiresIn: '10d',
+        secret: this.configService.get<string>('REFRESH_SECRET'),
+      }, // Refresh token valid for 7 days
     );
 
     return { accessToken, refreshToken };
@@ -53,29 +56,46 @@ export class AuthService {
     token: string,
   ): Promise<ValidateAccessTokenResponse> {
     try {
-      const decoded = await this.jwtService.verifyAsync(token);
-      if (decoded.exp * 1000 < Date.now())
-        throw new UnauthorizedException('Expired access token');
+      const decoded = this.jwtService.verify(token);
+
+      const isExpired = decoded.exp * 1000 < Date.now();
+      if (isExpired)
+        throw new RpcException({
+          code: status.UNAUTHENTICATED,
+          message: 'Expired access token',
+        });
 
       return {
-        isValid: decoded.exp * 1000 < Date.now(),
+        isValid: !isExpired,
         userId: decoded.sub as string,
       };
     } catch (error) {
-      throw new UnauthorizedException('Invalid access token');
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: 'Invalid access token',
+      });
     }
   }
 
   async validateRefreshToken(refreshToken: string) {
-    const decoded = await this.jwtService.verifyAsync(refreshToken);
+    const decoded = this.jwtService.verify(refreshToken, {
+      secret: this.configService.get<string>('REFRESH_SECRET'),
+    });
     if (decoded.type !== 'refresh') {
-      throw new UnauthorizedException('Invalid token type');
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: 'Invalid token type',
+      });
     }
-    if (decoded.exp * 1000 < Date.now())
-      throw new UnauthorizedException('Expired refresh token');
+    const isExpired = decoded.exp * 1000 < Date.now();
+    if (isExpired)
+      throw new RpcException({
+        code: status.UNAUTHENTICATED,
+        message: 'Expired access token',
+      });
 
     return {
-      idValid: decoded.exp * 1000 < Date.now(),
+      isValid: !isExpired,
       userId: decoded.sub as string,
     };
   }
@@ -90,11 +110,17 @@ export class AuthService {
   private async validateUser(email: string, password: string) {
     const user = await this.userService.getUser({ email });
     if (!user) {
-      throw new BadRequestException('Invalid credentials');
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: 'Invalid credentials',
+      });
     }
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      throw new BadRequestException('Invalid credentials');
+      throw new RpcException({
+        code: status.INTERNAL,
+        message: 'Invalid credentials',
+      });
     }
     return user;
   }

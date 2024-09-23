@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ValidateAccessTokenResponse } from '@app/common';
-import { map, Observable } from 'rxjs';
+import { lastValueFrom, map } from 'rxjs';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -22,12 +22,12 @@ export class AuthGuard implements CanActivate {
     }
 
     try {
-      const payload = (await this.authService.validateAccessToken({
-        token,
-      })) as unknown as ValidateAccessTokenResponse;
+      const payload = await lastValueFrom(
+        await this.authService.validateAccessToken({
+          token,
+        }),
+      );
       request['user'] = payload.userId;
-      if (payload.isValid)
-        throw new UnauthorizedException('Expired access token');
       return payload.isValid;
     } catch (error) {
       throw new UnauthorizedException(error);
