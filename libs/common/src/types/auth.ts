@@ -5,10 +5,10 @@
 // source: proto/auth.proto
 
 /* eslint-disable */
-import { GrpcMethod, GrpcStreamMethod } from '@nestjs/microservices';
-import { Observable } from 'rxjs';
+import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
+import { Observable } from "rxjs";
 
-export const protobufPackage = 'auth';
+export const protobufPackage = "auth";
 
 export interface CreateUserRequest {
   name: string;
@@ -16,7 +16,7 @@ export interface CreateUserRequest {
   password: string;
 }
 
-export interface GenerateTokensRequest {
+export interface LoginRequest {
   email: string;
   password: string;
 }
@@ -39,84 +39,116 @@ export interface RefreshTokensRequest {
   refreshToken: string;
 }
 
-export const AUTH_PACKAGE_NAME = 'auth';
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+export interface GetUserRequest {
+  id: string;
+}
+
+export interface UpdateUserRequest {
+  id?: string | undefined;
+  name?: string | undefined;
+  email?: string | undefined;
+  password?: string | undefined;
+}
+
+export interface DeleteUserRequest {
+  id: string;
+}
+
+export interface ListUsersRequest {
+  limit?: number | undefined;
+  offset?: number | undefined;
+}
+
+export interface ListUsersResponse {
+  users: User[];
+}
+
+export const AUTH_PACKAGE_NAME = "auth";
 
 export interface AuthServiceClient {
   register(request: CreateUserRequest): Observable<GenerateTokensResponse>;
 
-  login(request: GenerateTokensRequest): Observable<GenerateTokensResponse>;
+  login(request: LoginRequest): Observable<GenerateTokensResponse>;
 
-  validateAccessToken(
-    request: ValidateAccessTokenRequest,
-  ): Observable<ValidateAccessTokenResponse>;
+  validateAccessToken(request: ValidateAccessTokenRequest): Observable<ValidateAccessTokenResponse>;
 
-  refreshTokens(
-    request: RefreshTokensRequest,
-  ): Observable<GenerateTokensResponse>;
+  refreshTokens(request: RefreshTokensRequest): Observable<GenerateTokensResponse>;
 }
 
 export interface AuthServiceController {
   register(
     request: CreateUserRequest,
-  ):
-    | Promise<GenerateTokensResponse>
-    | Observable<GenerateTokensResponse>
-    | GenerateTokensResponse;
+  ): Promise<GenerateTokensResponse> | Observable<GenerateTokensResponse> | GenerateTokensResponse;
 
   login(
-    request: GenerateTokensRequest,
-  ):
-    | Promise<GenerateTokensResponse>
-    | Observable<GenerateTokensResponse>
-    | GenerateTokensResponse;
+    request: LoginRequest,
+  ): Promise<GenerateTokensResponse> | Observable<GenerateTokensResponse> | GenerateTokensResponse;
 
   validateAccessToken(
     request: ValidateAccessTokenRequest,
-  ):
-    | Promise<ValidateAccessTokenResponse>
-    | Observable<ValidateAccessTokenResponse>
-    | ValidateAccessTokenResponse;
+  ): Promise<ValidateAccessTokenResponse> | Observable<ValidateAccessTokenResponse> | ValidateAccessTokenResponse;
 
   refreshTokens(
     request: RefreshTokensRequest,
-  ):
-    | Promise<GenerateTokensResponse>
-    | Observable<GenerateTokensResponse>
-    | GenerateTokensResponse;
+  ): Promise<GenerateTokensResponse> | Observable<GenerateTokensResponse> | GenerateTokensResponse;
 }
 
 export function AuthServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = [
-      'register',
-      'login',
-      'validateAccessToken',
-      'refreshTokens',
-    ];
+    const grpcMethods: string[] = ["register", "login", "validateAccessToken", "refreshTokens"];
     for (const method of grpcMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(
-        constructor.prototype,
-        method,
-      );
-      GrpcMethod('AuthService', method)(
-        constructor.prototype[method],
-        method,
-        descriptor,
-      );
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
+      GrpcMethod("AuthService", method)(constructor.prototype[method], method, descriptor);
     }
     const grpcStreamMethods: string[] = [];
     for (const method of grpcStreamMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(
-        constructor.prototype,
-        method,
-      );
-      GrpcStreamMethod('AuthService', method)(
-        constructor.prototype[method],
-        method,
-        descriptor,
-      );
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
+      GrpcStreamMethod("AuthService", method)(constructor.prototype[method], method, descriptor);
     }
   };
 }
 
-export const AUTH_SERVICE_NAME = 'AuthService';
+export const AUTH_SERVICE_NAME = "AuthService";
+
+export interface UserServiceClient {
+  getUser(request: GetUserRequest): Observable<User>;
+
+  updateUser(request: UpdateUserRequest): Observable<User>;
+
+  deleteUser(request: DeleteUserRequest): Observable<User>;
+
+  listUsers(request: ListUsersRequest): Observable<ListUsersResponse>;
+}
+
+export interface UserServiceController {
+  getUser(request: GetUserRequest): Promise<User> | Observable<User> | User;
+
+  updateUser(request: UpdateUserRequest): Promise<User> | Observable<User> | User;
+
+  deleteUser(request: DeleteUserRequest): Promise<User> | Observable<User> | User;
+
+  listUsers(request: ListUsersRequest): Promise<ListUsersResponse> | Observable<ListUsersResponse> | ListUsersResponse;
+}
+
+export function UserServiceControllerMethods() {
+  return function (constructor: Function) {
+    const grpcMethods: string[] = ["getUser", "updateUser", "deleteUser", "listUsers"];
+    for (const method of grpcMethods) {
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
+      GrpcMethod("UserService", method)(constructor.prototype[method], method, descriptor);
+    }
+    const grpcStreamMethods: string[] = [];
+    for (const method of grpcStreamMethods) {
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
+      GrpcStreamMethod("UserService", method)(constructor.prototype[method], method, descriptor);
+    }
+  };
+}
+
+export const USER_SERVICE_NAME = "UserService";

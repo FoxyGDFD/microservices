@@ -1,28 +1,32 @@
-import { Controller, Get, Post, Body, Req, Logger } from '@nestjs/common';
+import { Controller, Post, Body } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import {
-  CreateUserRequest,
-  GenerateTokensRequest,
-  RefreshTokensRequest,
+  LoginDto,
+  RegisterUserDto,
+  TokensDto,
+  RefreshTokenDto,
 } from '@app/common';
-
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @ApiOkResponse({ type: TokensDto })
   @Post()
-  async login(@Body() request: GenerateTokensRequest) {
+  async login(@Body() request: LoginDto) {
     return await this.authService.login(request);
   }
 
+  @ApiCreatedResponse({ type: TokensDto })
   @Post('new')
-  register(@Body() request: CreateUserRequest) {
-    Logger.log('register', request);
-    return this.authService.register(request);
+  async register(@Body() request: RegisterUserDto) {
+    return await this.authService.register(request);
   }
 
+  @ApiOkResponse({ type: TokensDto })
   @Post('refresh')
-  async refreshTokens(@Body() request: RefreshTokensRequest) {
+  async refreshTokens(@Body() request: RefreshTokenDto) {
     return await this.authService.refreshTokens(request);
   }
 }

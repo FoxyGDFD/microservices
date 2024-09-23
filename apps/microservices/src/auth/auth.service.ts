@@ -2,8 +2,7 @@ import {
   AUTH_SERVICE_NAME,
   AuthServiceClient,
   CreateUserRequest,
-  GenerateTokensRequest,
-  protobufPackage,
+  LoginRequest,
   RefreshTokensRequest,
   ValidateAccessTokenRequest,
   ValidateAccessTokenResponse,
@@ -14,7 +13,7 @@ import { Observable } from 'rxjs';
 
 @Injectable()
 export class AuthService implements OnModuleInit {
-  constructor(@Inject(protobufPackage) private client: ClientGrpc) {}
+  constructor(@Inject(AUTH_SERVICE_NAME) private client: ClientGrpc) {}
   private grpcAuthService: AuthServiceClient;
 
   onModuleInit() {
@@ -26,7 +25,7 @@ export class AuthService implements OnModuleInit {
     return this.grpcAuthService.register(request);
   }
 
-  async login(request: GenerateTokensRequest) {
+  async login(request: LoginRequest) {
     return this.grpcAuthService.login(request);
   }
 
