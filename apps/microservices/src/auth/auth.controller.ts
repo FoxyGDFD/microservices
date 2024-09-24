@@ -13,13 +13,13 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @ApiOkResponse({ type: TokensDto })
-  @Post()
+  @Post('login')
   async login(@Body() request: LoginDto) {
     return await this.authService.login(request);
   }
 
   @ApiCreatedResponse({ type: TokensDto })
-  @Post('new')
+  @Post('register')
   async register(@Body() request: RegisterUserDto) {
     return await this.authService.register(request);
   }

@@ -6,7 +6,6 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ValidateAccessTokenResponse } from '@app/common';
 import { lastValueFrom, map } from 'rxjs';
 
 @Injectable()
@@ -27,7 +26,7 @@ export class AuthGuard implements CanActivate {
           token,
         }),
       );
-      request['user'] = payload.userId;
+      request['user'] = payload.userId as string;
       return payload.isValid;
     } catch (error) {
       throw new UnauthorizedException(error);

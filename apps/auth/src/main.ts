@@ -8,7 +8,6 @@ import {
 import { protobufPackage } from '@app/common';
 import { ValidationError, ValidationPipe } from '@nestjs/common';
 import { status } from '@grpc/grpc-js';
-import { error } from 'console';
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
