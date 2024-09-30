@@ -1,0 +1,66 @@
+services:
+  auth-db:
+    container_name: auth-db
+    image: postgres
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+    env_file:
+      - ./.env
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+      - .:/docker-entrypoint-initdb.d
+    ports:
+      - 5432:5432
+    networks:
+      - backend
+
+  api-gateway:
+    container_name: api-gateway
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: api-gateway
+    env_file:
+      - ./.env
+    depends_on:
+      - auth
+    volumes:
+      - ./backends/microservices:/backend/backends/microservices
+    ports:
+      - ${API_GATEWAY_SERVICE_PORT}:${API_GATEWAY_SERVICE_PORT}
+    networks:
+      - backend
+
+  auth:
+    container_name: auth
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: auth
+    volumes:
+      - ./prisma:/backend/prisma
+      - ./backends/auth:/backend/backends/auth
+    env_file:
+      - ./.env
+    ports:
+      - ${AUTH_SERVICE_PORT}:${AUTH_SERVICE_PORT}
+    depends_on:
+      auth-db:
+        condition: service_healthy
+        restart: true
+
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  postgres_data:

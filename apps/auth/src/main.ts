@@ -6,10 +6,17 @@ import {
   Transport,
 } from '@nestjs/microservices';
 import { protobufPackage } from '@app/common';
-import { ValidationError, ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationError, ValidationPipe } from '@nestjs/common';
 import { status } from '@grpc/grpc-js';
+import { ConfigService } from '@nestjs/config';
+
+export const logger = new Logger('Auth Microservice');
 
 async function bootstrap() {
+  const appContext = await NestFactory.create(AuthModule);
+  const configService = appContext.get(ConfigService);
+  const port = configService.get<string>('AUTH_SERVICE_PORT');
+
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     AuthModule,
     {
@@ -17,7 +24,7 @@ async function bootstrap() {
       options: {
         protoPath: 'proto/auth.proto',
         package: protobufPackage,
-        url: 'localhost:5000',
+        url: `auth:${port}`,
       },
     },
   );
@@ -37,7 +44,9 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen();
+  await app
+    .listen()
+    .then(() => logger.log(`Auth microservice listening on port ${port}`));
 }
 
 bootstrap();

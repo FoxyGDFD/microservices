@@ -1,5 +1,8 @@
-import { createParamDecorator, Logger } from '@nestjs/common';
+import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
-export const IdFromJwt = createParamDecorator((_data, req) => {
-  return req.user as string;
-});
+export const IdFromJwt = createParamDecorator(
+  (_data, context: ExecutionContext) => {
+    const request = context.switchToHttp().getRequest();
+    return request.user;
+  },
+);

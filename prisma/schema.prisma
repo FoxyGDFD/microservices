@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("AUTH_DB_URL")
 }
 
 model User {
@@ -12,5 +12,12 @@ model User {
   name      String
   email     String   @unique
   password  String
+  role      Role     @default(VISITOR)
   createdAt DateTime @default(now())
+}
+
+enum Role {
+  VISITOR
+  EDITOR
+  ADMIN
 }

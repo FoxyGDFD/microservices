@@ -1,16 +1,20 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { ApiGatewayModule } from './api-gateway.module';
 import { GrpcExceptionFilter } from '@app/common';
 import { GrpcExceptionsInterceptor } from '@app/common/exceptions/grpc-exceptions.interceptor';
+import { ConfigService } from '@nestjs/config';
 
-const logger = new Logger('Main');
+export const logger = new Logger('Api Gateway');
 
 async function bootstrap() {
   const app = await NestFactory.create(ApiGatewayModule);
   app.useGlobalInterceptors(new GrpcExceptionsInterceptor());
   app.useGlobalFilters(new GrpcExceptionFilter());
+
+  const configService = app.get(ConfigService);
+  const port = configService.get<string>('API_GATEWAY_SERVICE_PORT');
 
   const config = new DocumentBuilder()
     .setTitle('Microservices API Gateway')
@@ -26,9 +30,10 @@ async function bootstrap() {
       'Authorization',
     )
     .build();
+
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  app.listen(8000).then(() => logger.log('Microservice is listening 8000'));
+  app.listen(port).then(() => logger.log(`Microservice is listening ${port}`));
 }
 bootstrap();
