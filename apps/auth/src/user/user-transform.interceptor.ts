@@ -10,9 +10,9 @@ import { map, Observable } from 'rxjs';
 
 @Injectable()
 export class TransformUserInterceptor implements NestInterceptor {
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  intercept(_context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
-      map(({ password, createdAt, ...user }: User): UserEntity => {
+      map(({ password, createdAt, role, ...user }: User): UserEntity => {
         return { ...user };
       }),
     );

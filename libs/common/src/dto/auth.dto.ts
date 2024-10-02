@@ -5,24 +5,25 @@ import {
   GenerateTokensResponse,
   LoginRequest,
   RefreshTokensRequest,
+  RegisterRequest,
 } from 'libs/common/src/types';
 
 export class LoginDto implements LoginRequest {
   @IsEmail()
-  @ApiProperty()
+  @ApiProperty({ format: 'email' })
   email: string;
   @IsString()
   @ApiProperty()
   password: string;
 }
 
-export class RegisterUserDto implements CreateUserRequest {
+export class RegisterDto implements RegisterRequest {
   @IsString()
   @ApiProperty()
   name: string;
   @IsString()
   @IsEmail()
-  @ApiProperty()
+  @ApiProperty({ format: 'email' })
   email: string;
   @IsStrongPassword()
   @ApiProperty()

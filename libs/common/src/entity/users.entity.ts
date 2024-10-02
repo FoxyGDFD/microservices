@@ -10,7 +10,7 @@ export class UserEntity implements UserType {
   @ApiProperty()
   @IsString()
   name: string;
-  @ApiProperty()
+  @ApiProperty({ format: 'email' })
   @IsEmail()
   email: string;
 }

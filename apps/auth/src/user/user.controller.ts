@@ -2,6 +2,7 @@ import { Controller, UseInterceptors } from '@nestjs/common';
 import { GrpcMethod, RpcException } from '@nestjs/microservices';
 import { UserService } from './user.service';
 import {
+  CreateUserRequest,
   DeleteUserRequest,
   GetUserRequest,
   ListUsersRequest,
@@ -17,6 +18,12 @@ import { TransformUserInterceptor } from './user-transform.interceptor';
 @Controller()
 export class UserController implements UserServiceController {
   constructor(private readonly userService: UserService) {}
+
+  @GrpcMethod('UserService', 'CreateUser')
+  async createUser(data: CreateUserRequest): Promise<User> {
+    const user = await this.userService.createUser(data);
+    return user;
+  }
 
   @GrpcMethod('UserService', 'GetUser')
   async getUser(data: GetUserRequest): Promise<User> {
@@ -43,12 +50,11 @@ export class UserController implements UserServiceController {
   }
 
   @GrpcMethod('UserService', 'ListUsers')
-  async listUsers(request: ListUsersRequest): Promise<ListUsersResponse> {
-    const users = await this.userService.listUsers(
-      {},
-      request.limit,
-      request.offset,
-    );
+  async listUsers({
+    limit,
+    offset,
+  }: ListUsersRequest): Promise<ListUsersResponse> {
+    const users = await this.userService.listUsers({}, limit, offset);
     return { users };
   }
 }

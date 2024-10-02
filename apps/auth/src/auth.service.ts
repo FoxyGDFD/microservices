@@ -30,19 +30,19 @@ export class AuthService {
       });
     }
     const newUser = await this.userService.createUser(createUserDto);
-    return await this.generateTokens(newUser.id);
+    return await this.generateTokens(newUser.id, newUser.role);
   }
 
   async login(email: string, password: string) {
     const user = await this.validateUser(email, password);
-    return await this.generateTokens(user.id);
+    return await this.generateTokens(user.id, user.role);
   }
 
-  private async generateTokens(id: string) {
-    const accessToken = this.jwtService.sign({ sub: id });
+  private async generateTokens(id: string, role: string) {
+    const accessToken = this.jwtService.sign({ sub: id, role });
 
     const refreshToken = this.jwtService.sign(
-      { sub: id, type: 'refresh' },
+      { sub: id, type: 'refresh', role },
       {
         expiresIn: '10d',
         secret: this.configService.get<string>('REFRESH_SECRET'),
@@ -68,6 +68,7 @@ export class AuthService {
       return {
         isValid: !isExpired,
         userId: decoded.sub as string,
+        role: decoded.role,
       };
     } catch (error) {
       throw new RpcException({
@@ -96,15 +97,16 @@ export class AuthService {
 
     return {
       isValid: !isExpired,
-      userId: decoded.sub as string,
+      userId: decoded.sub,
+      role: decoded.role,
     };
   }
 
   async refreshTokens(refreshTokensRequest: RefreshTokensRequest) {
-    const { userId } = await this.validateRefreshToken(
+    const { userId, role } = await this.validateRefreshToken(
       refreshTokensRequest.refreshToken,
     );
-    return this.generateTokens(userId);
+    return this.generateTokens(userId, role);
   }
 
   private async validateUser(email: string, password: string) {

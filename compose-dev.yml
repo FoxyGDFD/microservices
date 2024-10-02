@@ -30,7 +30,7 @@ services:
     depends_on:
       - auth
     volumes:
-      - ./backends/microservices:/backend/backends/microservices
+      - ./apps/microservices:/app/apps/microservices
     ports:
       - ${API_GATEWAY_SERVICE_PORT}:${API_GATEWAY_SERVICE_PORT}
     networks:
@@ -44,8 +44,8 @@ services:
       dockerfile: Dockerfile
       target: auth
     volumes:
-      - ./prisma:/backend/prisma
-      - ./backends/auth:/backend/backends/auth
+      - ./prisma:/app/prisma
+      - ./apps/auth:/app/apps/auth
     env_file:
       - ./.env
     ports:
@@ -54,7 +54,6 @@ services:
       auth-db:
         condition: service_healthy
         restart: true
-
     networks:
       - backend
 

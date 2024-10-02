@@ -13,6 +13,8 @@ async function bootstrap() {
   app.useGlobalInterceptors(new GrpcExceptionsInterceptor());
   app.useGlobalFilters(new GrpcExceptionFilter());
 
+  app.setGlobalPrefix('/api');
+
   const configService = app.get(ConfigService);
   const port = configService.get<string>('API_GATEWAY_SERVICE_PORT');
 

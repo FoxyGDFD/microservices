@@ -8,14 +8,14 @@ import {
   ValidateAccessTokenResponse,
 } from '@app/common';
 import { GrpcMethod } from '@nestjs/microservices';
-import { LoginDto, RegisterUserDto } from '@app/common/dto';
+import { LoginDto, RegisterDto } from '@app/common/dto';
 
 @Controller()
 export class AuthController implements AuthServiceController {
   constructor(private readonly authService: AuthService) {}
 
   @GrpcMethod('AuthService', 'Register')
-  async register(createUserDto: RegisterUserDto) {
+  async register(createUserDto: RegisterDto) {
     const tokens = await this.authService.register(createUserDto);
     return tokens;
   }

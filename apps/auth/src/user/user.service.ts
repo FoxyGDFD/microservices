@@ -1,10 +1,14 @@
-import { CreateUserRequest, UpdateUserRequest } from '@app/common';
-import { PrismaService } from '@app/common/prisma/prisma.service';
+import {
+  CreateUserRequest,
+  encodePassword,
+  Role,
+  UpdateUserRequest,
+} from '@app/common';
+import { PrismaService } from '@app/common/modules/prisma/prisma.service';
 import { status } from '@grpc/grpc-js';
 import { Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { Prisma, User } from '@prisma/client';
-import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UserService {
@@ -14,7 +18,8 @@ export class UserService {
     return this.prisma.user.create({
       data: {
         ...createUserDto,
-        password: this.encodePassword(createUserDto.password),
+        role: Role[createUserDto.role] ?? Role.VISITOR,
+        password: encodePassword(createUserDto.password),
       },
     });
   }
@@ -31,13 +36,17 @@ export class UserService {
       ? updateUserDto
       : {
           ...updateUserDto,
-          password: this.encodePassword(updateUserDto.password),
+          password: encodePassword(updateUserDto.password),
         };
 
     const user = await this.prisma.user.update({
       where: { id: updateUserDto.id },
-      data,
+      data: {
+        ...data,
+        role: Role[updateUserDto.role],
+      },
     });
+
     if (!user) {
       throw new RpcException({
         code: status.NOT_FOUND,
@@ -64,11 +73,5 @@ export class UserService {
       skip: offset,
       take: limit,
     });
-  }
-
-  private encodePassword(password: string): string {
-    const salt: string = bcrypt.genSaltSync(10);
-
-    return bcrypt.hashSync(password, salt);
   }
 }

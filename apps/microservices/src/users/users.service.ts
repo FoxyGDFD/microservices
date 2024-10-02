@@ -8,6 +8,7 @@ import {
   UpdateUserRequest,
   User,
   USER_SERVICE_NAME,
+  CreateUserRequest,
 } from '@app/common';
 import { ClientGrpc } from '@nestjs/microservices';
 import { Observable } from 'rxjs';
@@ -20,6 +21,10 @@ export class UsersService implements OnModuleInit, UserServiceClient {
   onModuleInit() {
     this.grpcUserService =
       this.client.getService<UserServiceClient>(USER_SERVICE_NAME);
+  }
+
+  createUser(request: CreateUserRequest): Observable<User> {
+    return this.grpcUserService.createUser(request);
   }
 
   getUser(request: GetUserRequest): Observable<User> {

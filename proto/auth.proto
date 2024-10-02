@@ -3,13 +3,13 @@ syntax = "proto3";
 package auth;
 
 service AuthService {
-  rpc Register(CreateUserRequest) returns (GenerateTokensResponse);
+  rpc Register(RegisterRequest) returns (GenerateTokensResponse);
   rpc Login(LoginRequest) returns (GenerateTokensResponse);
   rpc ValidateAccessToken(ValidateAccessTokenRequest) returns (ValidateAccessTokenResponse);
   rpc RefreshTokens(RefreshTokensRequest) returns (GenerateTokensResponse);
 }
 
-message CreateUserRequest {
+message RegisterRequest {
   string name = 1;
   string email = 2;
   string password = 3;
@@ -32,6 +32,7 @@ message ValidateAccessTokenRequest {
 message ValidateAccessTokenResponse {
   bool isValid = 1;
   string userId = 2;
+  string role = 3;
 }
 
 message RefreshTokensRequest {
@@ -40,10 +41,18 @@ message RefreshTokensRequest {
 
 
 service UserService {
+  rpc CreateUser(CreateUserRequest) returns (User);
   rpc GetUser(GetUserRequest) returns (User);
   rpc UpdateUser(UpdateUserRequest) returns (User);
   rpc DeleteUser(DeleteUserRequest) returns (User);
   rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+}
+
+message CreateUserRequest {
+  string name = 1;
+  string email = 2;
+  string password = 3;
+  optional string role = 4;
 }
 
 message User {
@@ -51,8 +60,6 @@ message User {
   string name = 2;
   string email = 3;
 }
-
-
 
 message GetUserRequest {
   string id = 1;
@@ -63,6 +70,7 @@ message UpdateUserRequest {
   optional string name = 2;
   optional string email = 3;
   optional string password = 4;
+  optional string role = 5;
 }
 
 message DeleteUserRequest {

@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
-import { UsersController } from './users.controller';
+import { AdminsController } from './controllers/admin.controller';
 import { AuthModule } from '../auth/auth.module';
 import { UsersService } from './users.service';
-import { MeController } from './me/me.controller';
+import { MeController } from './controllers/me.controller';
 import { protobufPackage, USER_SERVICE_NAME } from '@app/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { UsersController } from './controllers/users.controller';
 
 @Module({
   imports: [
@@ -26,7 +27,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
       },
     ]),
   ],
-  controllers: [UsersController, MeController],
+  controllers: [AdminsController, MeController, UsersController],
   providers: [UsersService],
 })
 export class UsersModule {}
