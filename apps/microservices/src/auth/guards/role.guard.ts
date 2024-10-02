@@ -16,7 +16,6 @@ export const RoleGuard = (...roles: Role[]): Type<CanActivate> => {
       }
       const request = context.switchToHttp().getRequest();
 
-      logger.log('ROLE', roles, request.role);
       if (this.verifyRoles(roles, request.role)) return true;
       else throw new ForbiddenException('Permission denied');
     }
