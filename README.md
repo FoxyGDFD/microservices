@@ -17,7 +17,7 @@ docker compose -f .\compose-dev.yml up
 docker compose -f .\compose-dev.yml exec -it auth sh -c "npx prisma db push"
 ```
 
-### 3. Create root user:
+### 4. Create root user:
 ```bash
 docker compose -f .\compose-dev.yml exec -it auth sh -c "npm run create-superuser"  
 ```
@@ -32,7 +32,7 @@ $ npm install
 ### 2. Configure project environment:
 Copy `.env.example` file, rename it to `.env` and patch variable values you need. 
 
-### 4. Start postgresql and sync with prisma schema:
+### 3. Start postgresql and sync with prisma schema:
 > Note: If you want to run application locally you should start postgresql yourself or run docker container in this project. 
 
 To sync schema run: 
@@ -41,12 +41,12 @@ npx prisma db push
 ```
 
 
-### 3. Generate Prisma client:
+### 4. Generate Prisma client:
 ```bash
 $ npx prisma generate
 ```
 
-### 4. Running the apps:
+### 5. Running the apps:
    
 ```bash
 # development
@@ -59,7 +59,7 @@ $ npm run start:dev && npm run start:dev auth
 $ npm run start:prod && npm run start:prod auth
 ```
 
-### 5. Create root user:
+### 6. Create root user:
 ```bash
 docker compose -f .\compose-dev.yml exec -it auth sh -c "npm run create-superuser"  
 ```
