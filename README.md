@@ -34,6 +34,7 @@ Copy `.env.example` file, rename it to `.env` and patch variable values you need
 
 ### 4. Start postgresql and sync with prisma schema:
 > Note: If you want to run application locally you should start postgresql yourself or run docker container in this project. 
+
 To sync schema run: 
 ```bash
 npx prisma db push
