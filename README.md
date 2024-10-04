@@ -9,17 +9,17 @@ Copy `.env.example` file, rename it to `.env` and patch variable values you need
    
 ### 2. Start docker and run apps:
 ```bash
-docker compose -f .\compose-dev.yml up
+$ docker compose -f .\compose-dev.yml up
 ```
 
 ### 3. Sync db with prisma schema:
 ```bash
-docker compose -f .\compose-dev.yml exec -it auth sh -c "npx prisma db push"
+$ docker compose -f .\compose-dev.yml exec -it auth sh -c "npm run bd-sync:auth"
 ```
 
 ### 4. Create root user:
 ```bash
-docker compose -f .\compose-dev.yml exec -it auth sh -c "npm run create-superuser"  
+$ docker compose -f .\compose-dev.yml exec -it auth sh -c "npm run create-superuser"  
 ```
 
 # Start app locally:
@@ -37,13 +37,13 @@ Copy `.env.example` file, rename it to `.env` and patch variable values you need
 
 To sync schema run: 
 ```bash
-npx prisma db push
+$ npm run bd-sync:auth
 ```
 
 
 ### 4. Generate Prisma client:
 ```bash
-$ npx prisma generate
+$ npm run bd-client:auth
 ```
 
 ### 5. Running the apps:
@@ -61,7 +61,7 @@ $ npm run start:prod && npm run start:prod auth
 
 ### 6. Create root user:
 ```bash
-docker compose -f .\compose-dev.yml exec -it auth sh -c "npm run create-superuser"  
+$ docker compose -f .\compose-dev.yml exec -it auth sh -c "npm run create-superuser"  
 ```
 
 <!-- ## Test

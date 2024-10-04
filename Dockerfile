@@ -20,5 +20,5 @@ FROM nest AS auth
 
 WORKDIR /app
 
-RUN npx prisma generate --schema ./prisma/schema.prisma
+RUN npm run db-client:auth
 CMD [ "npm", "run", "start:dev", "auth" ]

@@ -19,8 +19,9 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./apps/microservices/test/jest-e2e.json",
     "proto:auth": "npx protoc --plugin=protoc-gen-ts_proto='.\\node_modules\\.bin\\protoc-gen-ts_proto.cmd' --ts_proto_out=./libs/common/src/types/ --ts_proto_opt=nestJs=true ./proto/*.proto",
-    "create-superuser": "npx ts-node libs/common/src/scripts/create-superuser.ts"
-
+    "create-superuser": "npx ts-node libs/common/src/scripts/create-superuser.ts",
+    "db-sync:auth": "npx prisma db push --schema=./prisma/schema.prisma",
+    "db-client:auth": "npx prisma generate --schema=./prisma/schema.prisma"
   },
   "dependencies": {
     "@grpc/grpc-js": "^1.11.1",
