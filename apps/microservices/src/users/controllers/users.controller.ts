@@ -1,5 +1,12 @@
 import { UserEntity, ListUsersResponse } from '@app/common';
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Observable } from 'rxjs';
 import { UsersService } from '../users.service';
@@ -16,7 +23,7 @@ export class UsersController {
 
   @ApiOkResponse({ type: UserEntity })
   @Get('/:id')
-  getUser(@Param('id') id: string): Observable<UserEntity> {
+  getUser(@Param('id', ParseUUIDPipe) id: string): Observable<UserEntity> {
     return this.userService.getUser({ id });
   }
 

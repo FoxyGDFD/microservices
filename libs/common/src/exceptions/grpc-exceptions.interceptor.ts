@@ -3,8 +3,6 @@ import {
   ExecutionContext,
   Injectable,
   NestInterceptor,
-  HttpException,
-  HttpStatus,
 } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { catchError, Observable } from 'rxjs';

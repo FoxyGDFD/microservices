@@ -9,6 +9,7 @@ import { status } from '@grpc/grpc-js';
 import { Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { Prisma, User } from '@prisma/client';
+import { logger } from '../main';
 
 @Injectable()
 export class UserService {
@@ -32,18 +33,27 @@ export class UserService {
   }
 
   async updateUser(updateUserDto: UpdateUserRequest): Promise<User> {
-    const data: UpdateUserRequest = updateUserDto.password
+    const data: UpdateUserRequest = !updateUserDto.password
       ? updateUserDto
       : {
           ...updateUserDto,
           password: encodePassword(updateUserDto.password),
         };
 
+    if (!!data.email) {
+      const isEmailTaken = await this.getUser({ email: data.email });
+
+      if (!!isEmailTaken)
+        throw new RpcException({
+          code: status.ALREADY_EXISTS,
+          message: 'Email is already taken',
+        });
+    }
+
     const user = await this.prisma.user.update({
       where: { id: updateUserDto.id },
       data: {
-        ...data,
-        role: Role[updateUserDto.role],
+        ...(data as Prisma.UserUpdateInput),
       },
     });
 

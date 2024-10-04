@@ -6,6 +6,7 @@ import {
   Delete,
   UseGuards,
   Post,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { UserEntity } from '@app/common';
 import { Observable } from 'rxjs';
@@ -32,7 +33,7 @@ export class AdminsController {
   @ApiOkResponse({ type: UserEntity })
   @Patch('/:id')
   updateUser(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() request: UpdateUserDto,
   ): Observable<UserEntity> {
     return this.userService.updateUser({ id, ...request });
@@ -40,7 +41,7 @@ export class AdminsController {
 
   @ApiOkResponse({ type: UserEntity })
   @Delete('/:id')
-  deleteUser(@Param('id') id: string): Observable<UserEntity> {
+  deleteUser(@Param('id', ParseUUIDPipe) id: string): Observable<UserEntity> {
     return this.userService.deleteUser({ id });
   }
 }

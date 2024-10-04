@@ -9,6 +9,7 @@ import { protobufPackage } from '@app/common';
 import { Logger, ValidationError, ValidationPipe } from '@nestjs/common';
 import { status } from '@grpc/grpc-js';
 import { ConfigService } from '@nestjs/config';
+import { GrpcExceptionsInterceptor } from '@app/common/exceptions/grpc-exceptions.interceptor';
 
 export const logger = new Logger('Auth Microservice');
 
@@ -28,6 +29,8 @@ async function bootstrap() {
       },
     },
   );
+
+  app.useGlobalInterceptors(new GrpcExceptionsInterceptor());
 
   app.useGlobalPipes(
     new ValidationPipe({

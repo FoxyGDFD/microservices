@@ -2,11 +2,14 @@ import {
   ArgumentsHost,
   Catch,
   ExceptionFilter,
+  HttpException,
   HttpStatus,
+  RpcExceptionFilter,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { status } from '@grpc/grpc-js';
 import { RpcException } from '@nestjs/microservices';
+import { throwError } from 'rxjs';
 
 export const HTTP_CODE_FROM_gRPC: Record<number, number> = {
   [status.OK]: HttpStatus.OK,
@@ -29,17 +32,22 @@ export const HTTP_CODE_FROM_gRPC: Record<number, number> = {
 };
 
 @Catch(RpcException)
-export class GrpcExceptionFilter implements ExceptionFilter {
+export class GrpcExceptionFilter implements RpcExceptionFilter<RpcException> {
   catch(exception: RpcException, host: ArgumentsHost) {
+    const error = exception.getError() as { code: number; message: string };
+    let message: string;
+
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-    const error = exception.message;
-    const statusCode =
-      HTTP_CODE_FROM_gRPC[error.split(': ').shift().split(' ').shift()] ??
-      HttpStatus.INTERNAL_SERVER_ERROR;
 
-    response.status(statusCode).json({
-      message: error.split(': ').pop(),
-    });
+    const code = HTTP_CODE_FROM_gRPC[error.code];
+
+    return throwError(() =>
+      response.status(code).json({
+        statusCode: code,
+        message: message,
+        timestamp: new Date().toISOString(),
+      }),
+    );
   }
 }

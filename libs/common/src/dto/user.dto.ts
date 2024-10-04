@@ -60,7 +60,7 @@ export class CreateUserDto implements CreateUserRequest {
   @ApiProperty()
   password: string;
   @IsOptional()
-  @IsEnum(Role)
+  @IsEnum(Role, { each: true })
   @ApiProperty({ enum: Object.keys(Role), required: false })
   role?: Role;
 }

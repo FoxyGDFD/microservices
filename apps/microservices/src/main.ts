@@ -1,16 +1,15 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { ApiGatewayModule } from './api-gateway.module';
 import { GrpcExceptionFilter } from '@app/common';
-import { GrpcExceptionsInterceptor } from '@app/common/exceptions/grpc-exceptions.interceptor';
 import { ConfigService } from '@nestjs/config';
 
 export const logger = new Logger('Api Gateway');
 
 async function bootstrap() {
   const app = await NestFactory.create(ApiGatewayModule);
-  app.useGlobalInterceptors(new GrpcExceptionsInterceptor());
+  app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
   app.useGlobalFilters(new GrpcExceptionFilter());
 
   app.setGlobalPrefix('/api');
