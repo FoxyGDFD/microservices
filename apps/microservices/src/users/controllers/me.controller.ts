@@ -1,4 +1,5 @@
-import { UpdateSelfDto, UpdateUserDto, UserEntity } from '@app/common';
+import { UpdateSelfDto } from '@app/common/dtos';
+import { UserEntity } from '@app/common/entities';
 import {
   Body,
   Controller,

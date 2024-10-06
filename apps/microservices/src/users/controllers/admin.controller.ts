@@ -13,7 +13,7 @@ import { Observable } from 'rxjs';
 import { JwtGuard } from '../../auth/guards/jwt.guard';
 import { UsersService } from '../users.service';
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { CreateUserDto, UpdateUserDto } from '@app/common/dto';
+import { CreateUserDto, UpdateUserDto } from '@app/common/dtos';
 import { RoleGuard } from '../../auth/guards/role.guard';
 import { Role } from '@app/common/types';
 

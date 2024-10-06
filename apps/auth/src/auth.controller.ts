@@ -8,7 +8,7 @@ import {
   ValidateAccessTokenResponse,
 } from '@app/common';
 import { GrpcMethod } from '@nestjs/microservices';
-import { LoginDto, RegisterDto } from '@app/common/dto';
+import { LoginDto, RegisterDto } from '@app/common/dtos';
 
 @Controller()
 export class AuthController implements AuthServiceController {
