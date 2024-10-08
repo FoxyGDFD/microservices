@@ -5,10 +5,9 @@ import {
   mixin,
   Type,
 } from '@nestjs/common';
-import { logger } from '../../main';
 import { Role } from '@app/common/types';
 
-export const RoleGuard = (...roles: Role[]): Type<CanActivate> => {
+export const RoleGuard = (...roles: Role[] | undefined): Type<CanActivate> => {
   class RoleGuardMixin implements CanActivate {
     canActivate(context: ExecutionContext): boolean {
       if (!roles.length) {
@@ -21,6 +20,7 @@ export const RoleGuard = (...roles: Role[]): Type<CanActivate> => {
     }
 
     private verifyRoles(requiredRoles: string[], userRoles: string): boolean {
+      if (!userRoles) return false;
       return requiredRoles.some((role) => userRoles.includes(role));
     }
   }
