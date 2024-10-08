@@ -6,11 +6,7 @@ import {
   IsString,
   IsStrongPassword,
 } from 'class-validator';
-import {
-  CreateUserRequest,
-  Role,
-  UpdateUserRequest,
-} from 'libs/common/src/types';
+import { UpdateUserRequest, Role, CreateUserRequest } from '../types';
 
 export class UpdateUserDto implements Omit<UpdateUserRequest, 'id'> {
   @IsOptional()

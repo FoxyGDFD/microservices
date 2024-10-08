@@ -38,6 +38,9 @@ export class JwtGuard implements CanActivate {
       (
         request.headers as Headers & { authorization?: string }
       ).authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
+    if (type === 'Bearer') return token;
+    throw new UnauthorizedException(
+      `Invalid token type. Expected 'Bearer' but got '${type}'`,
+    );
   }
 }
